@@ -8,9 +8,23 @@ datasource db {
 }
 
 model Link {
-  id         String   @id @default(cuid())
-  shortCode  String   @unique
-  longUrl    String
-  createdAt  DateTime @default(now())
-  clickCount Int      @default(0)
+  id          String       @id @default(cuid())
+  shortCode   String       @unique
+  longUrl     String
+  createdAt   DateTime     @default(now())
+  clickCount  Int          @default(0)
+  clickEvents ClickEvent[]
+}
+
+model ClickEvent {
+  id        String   @id @default(cuid())
+  linkId    String
+  referrer  String?
+  userAgent String?
+  ipAddress String?
+  clickedAt DateTime @default(now())
+
+  link Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId, clickedAt])
 }

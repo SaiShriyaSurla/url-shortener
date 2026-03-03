@@ -1,6 +1,6 @@
-# URL Shortener (Day 1 MVP)
+# URL Shortener (Day 1 + Day 2)
 
-A backend URL shortener built with Node.js, TypeScript, Express, Prisma, and PostgreSQL.
+A production-style URL shortener backend built with Node.js, TypeScript, Express, Prisma, PostgreSQL, and Redis.
 
 ## What’s implemented so far
 
@@ -11,7 +11,19 @@ A backend URL shortener built with Node.js, TypeScript, Express, Prisma, and Pos
 - `GET /:code` to redirect to original URL
 - `GET /health` health endpoint
 - Click tracking (`clickCount` increments on redirect)
-- Environment-based configuration
+
+### Day 2 additions
+
+- Redis cache for redirect lookups (`code -> longUrl`) to reduce DB reads
+- Rate limiting on `POST /shorten` to protect write path
+- Click event analytics model (`ClickEvent`) with metadata:
+  - `referrer`
+  - `userAgent`
+  - `ipAddress`
+  - `clickedAt`
+- `GET /links/:code/stats` endpoint for link analytics
+- Graceful Redis fallback (app continues if Redis is unavailable)
+- CI workflow (build + Prisma generate/migrate + tests)
 
 ## Tech Stack
 
@@ -20,13 +32,19 @@ A backend URL shortener built with Node.js, TypeScript, Express, Prisma, and Pos
 - Express
 - Prisma
 - PostgreSQL (Docker)
+- Redis
 - Zod (request validation)
 - Helmet + CORS (basic security)
+- Jest + Supertest (testing)
+- GitHub Actions (CI)
 
 ## Project Structure
 
 ```txt
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── docker-compose.yml
 ├── package.json
 ├── prisma/
@@ -34,7 +52,9 @@ A backend URL shortener built with Node.js, TypeScript, Express, Prisma, and Pos
 │   └── migrations/
 ├── src/
 │   ├── app.ts
+│   ├── app.test.ts
 │   ├── index.ts
-│   └── prisma.ts
+│   ├── prisma.ts
+│   └── redis.ts
 ├── .env
 └── tsconfig.json
